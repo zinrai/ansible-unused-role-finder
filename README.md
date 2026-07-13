@@ -1,53 +1,36 @@
 # ansible-unused-role-finder
 
-`ansible-unused-role-finder` is a command-line tool written in Go that helps identify unused Ansible roles in your playbooks. It analyzes your Ansible playbook and roles directory to determine which roles are not being used, either directly or as dependencies of other roles.
+`ansible-unused-role-finder` lists Ansible roles that no playbook uses, so you can mechanically find roles left behind after a system is replaced.
 
-I wanted to mechanically list Ansible Roles that were no longer needed when the system was replaced.
+## How roles are resolved
 
-## Features
+A role counts as used when a playbook declares it at the play level, or when it is pulled in as a `meta/main.yml` dependency of a used role. This matches the role layout in [ansible-role-practice](https://github.com/zinrai/ansible-role-practice), where a role maps to one package and is the minimum unit of setup.
 
-- Identifies unused Ansible roles
-- Handles role dependencies
-- Simple output format, listing only unused roles
+## Limitations
 
-## Installation
-
-```bash
-$ go build
-```
+Roles reached through `include_role` or `import_role` are not analyzed, because they are resolved at task runtime rather than declared statically. A role used only that way can therefore be reported as unused. Enforcing that roles stay declared at the play level is out of scope here.
 
 ## Usage
 
-Run the tool using the following command:
+Pass `-playbook` once per playbook that shares the roles directory. A role is unused only when none of the given playbooks reach it, directly or through dependencies, so playbooks that share roles must be checked together.
 
 ```bash
-./ansible-unused-role-finder -playbook /path/to/your/playbook.yml -roles /path/to/your/roles/directory
+./ansible-unused-role-finder -playbook consul-server.yml -playbook nomad-server.yml -roles roles
 ```
 
 ### Flags
 
-- `-playbook`: Path to the Ansible playbook YAML file (required)
+- `-playbook`: Path to an Ansible playbook YAML file, repeatable (required)
 - `-roles`: Path to the Ansible roles directory (required)
 
-### Example
+### Exit status
 
-```bash
-./ansible-unused-role-finder -playbook /etc/ansible/site.yml -roles /etc/ansible/roles
-```
+- `0`: the check ran, and any unused roles were printed to stdout
+- `1`: an error occurred
 
 ## Output
 
-The tool will output a list of unused roles, one per line. If there are no unused roles, it will not produce any output.
-
-Example output when unused roles are found:
-
-```
-unused_role1
-unused_role2
-unused_role3
-```
-
-If all roles are used, there will be no output.
+Unused role names go to stdout, one per line, sorted. No output means every role is used.
 
 ## License
 
