@@ -11,20 +11,19 @@ import (
 // directory must not be reported as unused.
 func TestUnusedRolesSharedAcrossPlaybooks(t *testing.T) {
 	roles := t.TempDir()
-	for _, r := range []string{"consul", "nomad", "docker.io", "orphan"} {
+	for _, r := range []string{"role1", "role2", "role3", "orphan"} {
 		writeFile(t, filepath.Join(roles, r, "tasks", "main.yml"), "- name: noop\n  debug:\n    msg: ok\n")
 	}
-	// nomad depends on docker.io through meta.
-	writeFile(t, filepath.Join(roles, "nomad", "meta", "main.yml"), "dependencies:\n  - role: docker.io\n")
+	// role2 depends on role3 through meta.
+	writeFile(t, filepath.Join(roles, "role2", "meta", "main.yml"), "dependencies:\n  - role: role3\n")
 
 	dir := t.TempDir()
-	consulPB := filepath.Join(dir, "consul.yml")
-	nomadPB := filepath.Join(dir, "nomad.yml")
-	writeFile(t, consulPB, "- hosts: all\n  roles:\n    - consul\n")
-	writeFile(t, nomadPB, "- hosts: all\n  roles:\n    - nomad\n")
+	playbook1 := filepath.Join(dir, "playbook1.yml")
+	playbook2 := filepath.Join(dir, "playbook2.yml")
+	writeFile(t, playbook1, "- hosts: all\n  roles:\n    - role1\n")
+	writeFile(t, playbook2, "- hosts: all\n  roles:\n    - role2\n")
 
-	// Checked alone, consul.yml would wrongly flag nomad and docker.io.
-	got, err := unusedRoles([]string{consulPB, nomadPB}, roles)
+	got, err := unusedRoles([]string{playbook1, playbook2}, roles)
 	if err != nil {
 		t.Fatal(err)
 	}

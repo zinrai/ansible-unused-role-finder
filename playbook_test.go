@@ -23,18 +23,18 @@ func TestPlaybookRolesBothForms(t *testing.T) {
 	writeFile(t, path, `
 - hosts: all
   roles:
-    - nginx
-    - role: docker.io
+    - role1
+    - role: dotted.role
 - hosts: db
   roles:
-    - postgresql
+    - role2
 `)
 
 	got, err := playbookRoles(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"nginx", "docker.io", "postgresql"}
+	want := []string{"role1", "dotted.role", "role2"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
@@ -42,15 +42,15 @@ func TestPlaybookRolesBothForms(t *testing.T) {
 
 func TestPlaybookRolesRejectsOtherForms(t *testing.T) {
 	entries := map[string]string{
-		"name key":      "- name: nginx",
-		"no role key":   "- tags: web",
-		"path":          "- roles/nginx",
-		"template":      `- "{{ webserver }}"`,
+		"name key":      "- name: role1",
+		"no role key":   "- tags: tag1",
+		"path":          "- roles/role1",
+		"template":      `- "{{ role1 }}"`,
 		"number":        "- 123",
 		"null":          "- ~",
 		"empty name":    `- role: ""`,
 		"non-string":    "- role: 123",
-		"nested string": "- [nginx]",
+		"nested string": "- [role1]",
 	}
 
 	for name, entry := range entries {

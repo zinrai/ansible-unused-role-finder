@@ -27,7 +27,7 @@ func TestExpandRolesTransitiveWithCycle(t *testing.T) {
 func TestExpandRolesRejectsUnresolvableDependency(t *testing.T) {
 	entries := map[string]string{
 		"name key":    "- name: b",
-		"no role key": "- tags: web",
+		"no role key": "- tags: tag1",
 		"path":        "- role: roles/b",
 		"template":    `- role: "{{ b }}"`,
 	}
