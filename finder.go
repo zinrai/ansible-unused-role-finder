@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 )
 
@@ -15,11 +16,18 @@ func allRoles(rolesPath string) ([]string, error) {
 
 	var roles []string
 	for _, e := range entries {
-		if e.IsDir() {
+		if isDir(filepath.Join(rolesPath, e.Name())) {
 			roles = append(roles, e.Name())
 		}
 	}
 	return roles, nil
+}
+
+// Not DirEntry.IsDir: it reports false for a symlink to a directory, which
+// would leave a symlinked role out of the listing.
+func isDir(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
 }
 
 // unusedRoles returns the roles under rolesPath that no playbook reaches, either
