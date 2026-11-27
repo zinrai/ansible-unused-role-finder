@@ -39,3 +39,29 @@ func TestPlaybookRolesBothForms(t *testing.T) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 }
+
+func TestPlaybookRolesRejectsOtherForms(t *testing.T) {
+	entries := map[string]string{
+		"name key":      "- name: nginx",
+		"no role key":   "- tags: web",
+		"path":          "- roles/nginx",
+		"template":      `- "{{ webserver }}"`,
+		"number":        "- 123",
+		"null":          "- ~",
+		"empty name":    `- role: ""`,
+		"non-string":    "- role: 123",
+		"nested string": "- [nginx]",
+	}
+
+	for name, entry := range entries {
+		t.Run(name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "playbook.yml")
+			writeFile(t, path, "- hosts: all\n  roles:\n    "+entry+"\n")
+
+			got, err := playbookRoles(path)
+			if err == nil {
+				t.Fatalf("got %v, want an error", got)
+			}
+		})
+	}
+}
