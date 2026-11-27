@@ -7,13 +7,6 @@ import (
 	"strings"
 )
 
-// Build metadata injected by goreleaser through -ldflags -X.
-var (
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
-)
-
 type playbookList []string
 
 func (p *playbookList) String() string { return strings.Join(*p, ",") }
@@ -31,7 +24,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Printf("ansible-unused-role-finder %s (commit %s, built %s)\n", version, commit, date)
+		printVersion()
 		return
 	}
 
