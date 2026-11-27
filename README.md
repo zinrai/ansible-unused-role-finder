@@ -6,9 +6,20 @@
 
 A role counts as used when a playbook declares it at the play level, or when it is pulled in as a `meta/main.yml` dependency of a used role. This matches the role layout in [ansible-role-practice](https://github.com/zinrai/ansible-role-practice), where a role maps to one package and is the minimum unit of setup.
 
+A role is a directory, or a symlink to one, directly under the roles directory. Both a play's `roles:` and a role's `dependencies:` name it in one of two forms:
+
+```yaml
+roles:
+  - nginx
+  - role: docker.io
+    tags: container
+```
+
+Any other entry is an error rather than being skipped: a mapping without a `role` key, a path, or a name containing `{{`. Skipping one would report a role in use as unused.
+
 ## Limitations
 
-Roles reached through `include_role` or `import_role` are not analyzed, because they are resolved at task runtime rather than declared statically. A role used only that way can therefore be reported as unused. Enforcing that roles stay declared at the play level is out of scope here.
+Roles reached through `include_role` or `import_role` are not analyzed, because they are named inside tasks and only play-level `roles:` and `meta/main.yml` are read. A role used only that way is therefore reported as unused. Enforcing that roles stay declared at the play level is out of scope here.
 
 ## Usage
 
