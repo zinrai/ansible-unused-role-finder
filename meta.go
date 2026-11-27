@@ -9,9 +9,7 @@ import (
 )
 
 type roleMeta struct {
-	Dependencies []struct {
-		Role string `yaml:"role"`
-	} `yaml:"dependencies"`
+	Dependencies []roleRef `yaml:"dependencies"`
 }
 
 // roleDependencies returns the roles listed in roles/<role>/meta/main.yml.
@@ -30,14 +28,7 @@ func roleDependencies(role, rolesPath string) ([]string, error) {
 	if err := yaml.Unmarshal(data, &meta); err != nil {
 		return nil, err
 	}
-
-	var deps []string
-	for _, d := range meta.Dependencies {
-		if d.Role != "" {
-			deps = append(deps, d.Role)
-		}
-	}
-	return deps, nil
+	return roleNames(meta.Dependencies)
 }
 
 // expandRoles walks the meta-dependency graph from the seed roles and returns

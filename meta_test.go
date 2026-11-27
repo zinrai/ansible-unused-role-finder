@@ -23,3 +23,24 @@ func TestExpandRolesTransitiveWithCycle(t *testing.T) {
 		}
 	}
 }
+
+func TestExpandRolesRejectsUnresolvableDependency(t *testing.T) {
+	entries := map[string]string{
+		"name key":    "- name: b",
+		"no role key": "- tags: web",
+		"path":        "- role: roles/b",
+		"template":    `- role: "{{ b }}"`,
+	}
+
+	for name, entry := range entries {
+		t.Run(name, func(t *testing.T) {
+			roles := t.TempDir()
+			writeFile(t, filepath.Join(roles, "a", "meta", "main.yml"), "dependencies:\n  "+entry+"\n")
+
+			used, err := expandRoles([]string{"a"}, roles)
+			if err == nil {
+				t.Fatalf("got %v, want an error", used)
+			}
+		})
+	}
+}
