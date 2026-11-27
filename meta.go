@@ -12,8 +12,6 @@ type roleMeta struct {
 	Dependencies []roleRef `yaml:"dependencies"`
 }
 
-// roleDependencies returns the roles listed in roles/<role>/meta/main.yml.
-// A role without a meta file has no dependencies.
 func roleDependencies(role, rolesPath string) ([]string, error) {
 	metaFile := filepath.Join(rolesPath, role, "meta", "main.yml")
 	data, err := os.ReadFile(metaFile)
@@ -31,8 +29,6 @@ func roleDependencies(role, rolesPath string) ([]string, error) {
 	return roleNames(meta.Dependencies)
 }
 
-// expandRoles walks the meta-dependency graph from the seed roles and returns
-// the full set of roles reached. Cycles terminate on the visited set.
 func expandRoles(seed []string, rolesPath string) (map[string]bool, error) {
 	used := make(map[string]bool)
 	queue := append([]string{}, seed...)

@@ -7,7 +7,6 @@ import (
 	"sort"
 )
 
-// allRoles lists the role directories under rolesPath.
 func allRoles(rolesPath string) ([]string, error) {
 	entries, err := os.ReadDir(rolesPath)
 	if err != nil {
@@ -30,10 +29,6 @@ func isDir(path string) bool {
 	return err == nil && info.IsDir()
 }
 
-// unusedRoles returns the roles under rolesPath that no playbook reaches, either
-// directly or through meta dependencies. A role counts as used when any of the
-// playbooks reaches it, so playbooks sharing a roles directory must be passed
-// together.
 func unusedRoles(playbooks []string, rolesPath string) ([]string, error) {
 	used := make(map[string]bool)
 	for _, pb := range playbooks {
@@ -59,8 +54,6 @@ func unusedRoles(playbooks []string, rolesPath string) ([]string, error) {
 	return unused, nil
 }
 
-// reachedFromPlaybook returns the roles a single playbook reaches, directly or
-// through meta dependencies.
 func reachedFromPlaybook(playbook, rolesPath string) (map[string]bool, error) {
 	seed, err := playbookRoles(playbook)
 	if err != nil {
@@ -69,7 +62,6 @@ func reachedFromPlaybook(playbook, rolesPath string) (map[string]bool, error) {
 	return expandRoles(seed, rolesPath)
 }
 
-// addAll marks every key of src as present in dst.
 func addAll(dst, src map[string]bool) {
 	for k := range src {
 		dst[k] = true

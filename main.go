@@ -14,7 +14,6 @@ var (
 	date    = "unknown"
 )
 
-// playbookList collects a repeatable -playbook flag.
 type playbookList []string
 
 func (p *playbookList) String() string { return strings.Join(*p, ",") }

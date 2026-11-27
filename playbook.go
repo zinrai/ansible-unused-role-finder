@@ -8,8 +8,6 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
-// roleRef accepts the two forms a role may be named in: a bare "rolename" and
-// a "{ role: rolename }" mapping. Every other form is an error.
 type roleRef struct {
 	Name string
 }
@@ -35,8 +33,6 @@ type play struct {
 	Roles []roleRef `yaml:"roles"`
 }
 
-// playbookRoles returns the roles declared at play level across every play in a
-// playbook file.
 func playbookRoles(path string) ([]string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -59,7 +55,6 @@ func playbookRoles(path string) ([]string, error) {
 	return roles, nil
 }
 
-// roleNames extracts the role names from a list of role references.
 func roleNames(refs []roleRef) ([]string, error) {
 	var names []string
 	for _, r := range refs {
@@ -71,8 +66,6 @@ func roleNames(refs []roleRef) ([]string, error) {
 	return names, nil
 }
 
-// isRoleDirName reports whether name can only refer to a directory directly
-// under the roles directory. A path or a template resolves somewhere else.
 func isRoleDirName(name string) bool {
 	return name != "" && !strings.Contains(name, "/") && !strings.Contains(name, "{{")
 }
